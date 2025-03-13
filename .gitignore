@@ -1,0 +1,29 @@
+# 🔹 Ignorar archivos compilados de Rust
+/target/
+**/*.rs.bk
+
+# 🔹 Ignorar archivos y carpetas de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# 🔹 Ignorar configuraciones de VS Code
+.vscode/
+
+# 🔹 Ignorar variables de entorno sensibles
+.env
+.env.local
+secrets.toml
+config.toml
+
+# 🔹 Ignorar dependencias de Rust
+/Cargo.lock
+
+# 🔹 Ignorar dependencias de Python
+Pipfile
+Pipfile.lock
+poetry.lock
+lib/
