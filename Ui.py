@@ -6,15 +6,22 @@ import ctypes
 import os
 from recon import QRCodeProcessor 
 
-
-lib_path = os.path.abspath("/home/astartes/Escritorio/portafolio/recon/libliblib.so")
+# -------------------------------
+# Cargar la biblioteca compartida de Rust
+lib_path = os.path.abspath("libliblib.so")
 lib = ctypes.CDLL(lib_path)
+soundlibpath = os.path.abspath("/home/astartes/Escritorio/portafolio/recon/libbeep.so")
+soundlib = ctypes.CDLL(soundlibpath)
 
-# Configurar la firma de la función para probar conexión
+# Configurar la función de conexión a MySQL
 lib.test_mysql_connection.restype = ctypes.c_int
 lib.test_mysql_connection.argtypes = [
     ctypes.c_char_p, ctypes.c_uint16, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p
 ]
+
+# Configurar la función del beep
+soundlib.beep_function.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_int]
+soundlib.beep_function.restype = ctypes.c_int 
 
 # Configurar la función para insertar datos
 lib.insert_into_mysql.restype = ctypes.c_int
@@ -30,12 +37,15 @@ root.geometry("800x700")
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
+# Establecer color de fondo inicial (gris oscuro)
+root.configure(fg_color="#242424")
+
 # -------------------------------
 # Layout 1: Login para conexión a MySQL
 frame_login = ctk.CTkFrame(root, width=750, height=400, corner_radius=15)
 frame_login.pack(padx=20, pady=20, expand=True, fill="both")
 
-# Label de cabecera en el login (posicionado con place para mostrarlo en coordenadas específicas)
+# Label de cabecera en el login
 header_label = ctk.CTkLabel(frame_login, text="Bienvenido: Ingrese los datos de conexión", font=("Arial", 18))
 header_label.place(x=150, y=20)
 
@@ -79,8 +89,10 @@ processor = QRCodeProcessor()
 detected = False
 
 def reset_detected():
+    """Resetea la variable de detección y regresa el color al original."""
     global detected
     detected = False
+    root.configure(fg_color="#242424")  # Volver al color gris oscuro
 
 def update_frame():
     global detected
@@ -91,10 +103,11 @@ def update_frame():
 
     if qr_text and not detected:
         detected = True
-        print("QR Detectado:", qr_text)
+        root.configure(fg_color="#00bb2d") 
+        camera_status_label.configure(text=f"Acceso {qr_text}", text_color="green")
+         # Cambia la ventana a VERDE
         insertar_qr(qr_text)  # Insertar en la BD
-        # Reinicia la detección después de 2 segundos sin bloquear la interfaz
-        root.after(2000, reset_detected)
+        root.after(2000, reset_detected)  # Reinicia la detección después de 2 segundos
 
     # Mostrar el frame en el canvas
     frame_rgb = cv2.cvtColor(frame_capture, cv2.COLOR_BGR2RGB)
@@ -113,17 +126,16 @@ def insertar_qr(data):
     password = entry_password.get()
     database = entry_database.get()
     result = lib.insert_into_mysql(host.encode(), port, user.encode(), password.encode(), database.encode(), data.encode())
+
     if result == 1:
-        camera_status_label.configure(text="✅ QR Registrado", text_color="green")
-        import sound 
-        sound.done()
-        print("✅ QR insertado en MySQL")
+        soundlib.beep_function(1000.0, 0.3, 44100)  # Sonido de confirmación
         root.after(2000, lambda: camera_status_label.configure(text=""))
     else:
-        camera_status_label.configure(text="❌ Error en la inserción", text_color="red")
-        print("❌ Error en la inserción")
+        camera_status_label.configure(text="Usuario No Reconocido", text_color="red")
+        
 
 def test_connection():
+    """Prueba la conexión y cambia de layout si es exitosa."""
     try:
         port = int(entry_port.get())
     except ValueError:
@@ -138,8 +150,7 @@ def test_connection():
     result = lib.test_mysql_connection(host_val, port, user_val, password_val, database_val)
     if result == 1:
         result_label.configure(text="✅ Conexión Exitosa", text_color="green")
-        # Espera 1 segundo y cambia de layout sin bloquear la UI
-        root.after(1000, cambiar_a_camera)
+        root.after(1000, cambiar_a_camera)  # Espera 1s antes de cambiar de layout
     else:
         result_label.configure(text="❌ Error en la conexión", text_color="red")
 
