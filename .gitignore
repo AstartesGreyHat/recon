@@ -11,6 +11,7 @@ __pycache__/
 venv/
 env/
 
+.gitignore
 # 🔹 Ignorar configuraciones de VS Code
 .vscode/
 
