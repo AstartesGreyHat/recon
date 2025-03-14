@@ -9,6 +9,7 @@ __pycache__/
 *.pyd
 .venv/
 venv/
+env/
 
 # 🔹 Ignorar configuraciones de VS Code
 .vscode/
@@ -21,6 +22,7 @@ config.toml
 
 # 🔹 Ignorar dependencias de Rust
 /Cargo.lock
+
 
 # 🔹 Ignorar dependencias de Python
 Pipfile
