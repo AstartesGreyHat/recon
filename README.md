@@ -1,4 +1,4 @@
-# Registro de Personal con QR
+# Registro de Personal con QR (Pausado, Se Recomienda Usar Inventory En este Mismo Autor)
 
 Este proyecto es un sistema de registro de personal basado en la lectura de códigos QR. Está diseñado para empresas y organizaciones que buscan una manera eficiente y segura de gestionar la entrada y salida de su personal. La aplicación utiliza Python con `customtkinter` para la interfaz gráfica, OpenCV para el procesamiento de imágenes y una base de datos MySQL para almacenar todos los registros de asistencia en tiempo real. Además, se integra con una biblioteca en C para la generación de sonidos de confirmación al escanear correctamente un código QR.
 
